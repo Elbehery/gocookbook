@@ -29,20 +29,26 @@ type Person struct {
 
 func unMarshalPerson(p Person) {
 	r, err := http.Get("https://swapi.dev/api/people/1")
-	if err != nil {
-		log.Fatalf("error calling http.Get(): %v", err)
-	}
+	check(err, func() {
+		log.Fatal(err)
+	})
 	defer r.Body.Close()
 
 	data, err := io.ReadAll(r.Body)
-	if err != nil {
+	check(err, func() {
 		log.Fatalf("error ready response body: %v", err)
-	}
+	})
 
 	err = json.Unmarshal(data, &p)
-	if err != nil {
+	check(err, func() {
 		log.Fatalf("error unmarshalling json data: %v", err)
-	}
+	})
 
 	return
+}
+
+func check(err error, handler func()) {
+	if err != nil {
+		handler()
+	}
 }
