@@ -6,18 +6,23 @@ type MaxHeap[T constraints.Ordered] struct {
 	nodes []T
 }
 
-func (h *MaxHeap[T]) NewMaxHeap() *MaxHeap[T] {
+func NewMaxHeap[T constraints.Ordered]() *MaxHeap[T] {
 	return &MaxHeap[T]{}
 }
 
-func (h *MaxHeap[T]) newMaxHeap(nodes []T) *MaxHeap[T] {
-	return &MaxHeap[T]{nodes: nodes}
+func newMaxHeap[T constraints.Ordered](nodes []T) *MaxHeap[T] {
+	h := NewMaxHeap[T]()
+	for _, v := range nodes {
+		h.Push(v)
+	}
+	return h
 }
 
 func (h *MaxHeap[T]) Push(val T) {
 	h.nodes = append(h.nodes, val)
-	for cur := len(h.nodes) - 1; h.nodes[cur] > h.nodes[h.parent(cur)]; cur = h.parent(cur) {
-		h.swap(cur, h.parent(cur))
+	cur := len(h.nodes) - 1
+	for ; h.nodes[cur] > h.nodes[parent(cur)]; cur = parent(cur) {
+		h.Swap(cur, parent(cur))
 	}
 }
 
@@ -31,7 +36,7 @@ func (h *MaxHeap[T]) Pop() T {
 
 func (h *MaxHeap[T]) reArrange(i int) {
 	largest := i
-	left, right := h.leftChild(i), h.rightChild(i)
+	left, right := leftChild(i), rightChild(i)
 
 	if left < h.Size() && h.nodes[left] > h.nodes[largest] {
 		largest = left
@@ -42,31 +47,19 @@ func (h *MaxHeap[T]) reArrange(i int) {
 	}
 
 	if largest != i {
-		h.swap(i, largest)
+		h.Swap(i, largest)
 		h.reArrange(largest)
 	}
 }
 
-func (h *MaxHeap[T]) swap(i, j int) {
+func (h *MaxHeap[T]) Swap(i, j int) {
 	h.nodes[i], h.nodes[j] = h.nodes[j], h.nodes[i]
-}
-
-func (h *MaxHeap[T]) parent(i int) int {
-	return (i - 1) / 2
-}
-
-func (h *MaxHeap[T]) leftChild(i int) int {
-	return (i * 2) + 1
-}
-
-func (h *MaxHeap[T]) rightChild(i int) int {
-	return (i * 2) + 2
-}
-
-func (h *MaxHeap[T]) Size() int {
-	return len(h.nodes)
 }
 
 func (h *MaxHeap[T]) IsEmpty() bool {
 	return len(h.nodes) == 0
+}
+
+func (h *MaxHeap[T]) Size() int {
+	return len(h.nodes)
 }
