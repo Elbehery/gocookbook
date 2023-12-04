@@ -11,13 +11,19 @@ func NewMinHeap[T constraints.Ordered]() *MinHeap[T] {
 }
 
 func newMinHeap[T constraints.Ordered](nodes []T) *MinHeap[T] {
-	return &MinHeap[T]{nodes: nodes}
+	h := NewMinHeap[T]()
+	for _, v := range nodes {
+		h.Push(v)
+	}
+
+	return h
 }
 
 func (h *MinHeap[T]) Push(val T) {
 	h.nodes = append(h.nodes, val)
-	for cur := len(h.nodes) - 1; cur < parent(cur); cur = parent(cur) {
-		h.swap(cur, parent(cur))
+	cur := len(h.nodes) - 1
+	for ; h.nodes[cur] < h.nodes[parent(cur)]; cur = parent(cur) {
+		h.Swap(cur, parent(cur))
 	}
 }
 
@@ -42,30 +48,30 @@ func (h *MinHeap[T]) reArrange(i int) {
 	}
 
 	if minimal != i {
-		h.swap(i, minimal)
+		h.Swap(i, minimal)
 		h.reArrange(minimal)
 	}
+}
+
+func (h *MinHeap[T]) Swap(i, j int) {
+	h.nodes[i], h.nodes[j] = h.nodes[j], h.nodes[i]
 }
 
 func (h *MinHeap[T]) Size() int {
 	return len(h.nodes)
 }
-
 func (h *MinHeap[T]) IsEmpty() bool {
-	return len(h.nodes) == 0
+	return h.Size() == 0
 }
 
-func (h *MinHeap[T]) swap(i, j int) {
-	h.nodes[i], h.nodes[j] = h.nodes[j], h.nodes[i]
-}
 func parent(i int) int {
 	return (i - 1) / 2
 }
 
 func leftChild(i int) int {
-	return (2 * i) + 1
+	return (i * 2) + 1
 }
 
 func rightChild(i int) int {
-	return (2 * i) + 2
+	return (i * 2) + 2
 }
