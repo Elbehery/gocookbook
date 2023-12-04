@@ -34,3 +34,29 @@ func TestMinHeap_Push(t *testing.T) {
 		})
 	}
 }
+
+func TestMinHeap_Pop(t *testing.T) {
+	testCases := []struct {
+		name string
+		h    *MinHeap[int]
+		exp  int
+	}{
+		{
+			name: "happy path",
+			h:    newMinHeap([]int{1, 2, 5}),
+			exp:  1,
+		},
+		{
+			name: "unHappy path",
+			h:    newMinHeap([]int{10, 3, 5, 6}),
+			exp:  3,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			act := tc.h.Pop()
+			assert.Equal(t, tc.exp, act)
+		})
+	}
+}

@@ -34,3 +34,29 @@ func TestMaxHeap_Push(t *testing.T) {
 		})
 	}
 }
+
+func TestMaxHeap_Pop(t *testing.T) {
+	testCases := []struct {
+		name string
+		h    *MaxHeap[int]
+		exp  int
+	}{
+		{
+			name: "happy path",
+			h:    newMaxHeap([]int{1, 2, 5}),
+			exp:  5,
+		},
+		{
+			name: "unHappy path",
+			h:    newMaxHeap([]int{4, 7, 3, 10}),
+			exp:  10,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			act := tc.h.Pop()
+			assert.Equal(t, tc.exp, act)
+		})
+	}
+}
