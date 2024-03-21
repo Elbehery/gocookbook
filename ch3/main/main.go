@@ -1,31 +1,76 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"os"
+)
 
-type Speaker interface {
-	Speak() string
+type Book struct {
+	Title  string `json:"title,omitempty"`
+	Author string `json:"author,omitempty"`
+	Pages  int    `json:"pages,omitempty"`
 }
 
-type Dog struct{}
+func SaveBooks(fileName string, books []Book) error {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-func (d *Dog) Speak() string {
-	return "DOG"
+	writer := bufio.NewWriter(f)
+
+	for _, book := range books {
+		jsonData, err := json.Marshal(book)
+		if err != nil {
+			return err
+		}
+		_, err = writer.WriteString(string(jsonData) + "\n")
+	}
+	return writer.Flush()
 }
 
-type Robot struct{}
+func LoadBooks(fileName string) ([]Book, error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
 
-func (r *Robot) Speak() string {
-	return "ROBOT"
-}
+	var books []Book
+	scanner := bufio.NewScanner(f)
 
-func introSpeaker(speaker Speaker) {
-	fmt.Println(speaker.Speak())
+	for scanner.Scan() {
+		var book Book
+		err = json.Unmarshal(scanner.Bytes(), &book)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, book)
+	}
+	return books, scanner.Err()
 }
 
 func main() {
-	d := &Dog{}
-	r := &Robot{}
+	fileName := "books.json"
+	books := []Book{
+		{"The Go Programming Language", "Alan A. A. Donovan", 380},
+		{"Go in Action", "William Kennedy", 300},
+	}
 
-	introSpeaker(d)
-	introSpeaker(r)
+	err := SaveBooks(fileName, books)
+	if err != nil {
+		fmt.Println("error saving ...")
+		return
+	}
+
+	loadedBooks, err := LoadBooks(fileName)
+	if err != nil {
+		fmt.Println("error loading ...")
+		return
+	}
+
+	fmt.Println(loadedBooks)
 }
